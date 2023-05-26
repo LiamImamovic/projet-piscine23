@@ -13,8 +13,8 @@ export const register = (req, res) => {
     const salt = bcrypt.genSaltSync(10); // Génération d'un sel pour le chiffrement du mot de passe
     const hash = bcrypt.hashSync(req.body.password, salt); // Chiffrement du mot de passe
 
-    const q = "INSERT INTO users(`username`,`email`,`password`) VALUES (?)";
-    const values = [req.body.username, req.body.email, hash];
+    const q = "INSERT INTO users(`username`,`email`,`password`,`isAdmin`) VALUES (?)";
+    const values = [req.body.username, req.body.email, hash, false]; // Utilisateur non administrateur par défaut
 
     // Insertion du nouvel utilisateur dans la base de données
     db.query(q, [values], (err, data) => {

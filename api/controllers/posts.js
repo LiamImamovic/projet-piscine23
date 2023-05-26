@@ -63,16 +63,18 @@ export const deletePost = (req, res) => {
     if (err) return res.status(403).json("Token is not valid!");
 
     const postId = req.params.id;
-    const q = "DELETE FROM posts WHERE `id` = ? AND `uid` = ?";
+    const q = "DELETE FROM posts WHERE `id` = ? AND (`uid` = ? OR (SELECT `isAdmin` FROM users WHERE `id` = ?) = 1)";
 
     // Suppression d'un article de blog de la base de données
-    db.query(q, [postId, userInfo.id], (err, data) => {
+    db.query(q, [postId, userInfo.id, userInfo.id], (err, data) => {
       if (err) return res.status(403).json("You can delete only your post!");
 
       return res.json("Post has been deleted!");
     });
   });
 };
+
+
 
 export const updatePost = (req, res) => {
   const token = req.cookies.access_token;

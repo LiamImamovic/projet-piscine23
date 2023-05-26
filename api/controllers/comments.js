@@ -36,3 +36,38 @@ export const addComment = (req, res) => {
     });
   });
 };
+
+
+export const getAllComments = (req, res) => {
+  const q = "SELECT * FROM comments";
+
+  db.query(q, (err, data) => {
+    if (err) {
+      console.error("Error fetching comments:", err);
+      return res.status(500).json(err);
+    }
+
+    return res.status(200).json(data);
+  });
+};
+
+export const deleteComment = (req, res) => {
+  const token = req.cookies.access_token;
+  if (!token) return res.status(401).json("Not authenticated!");
+  
+  // Vérification de l'authenticité du token JWT
+  jwt.verify(token, "jwtkey", (err, userInfo) => {
+    if (err) return res.status(403).json("Token is not valid!");
+    
+    
+    const commentId = req.params.id;
+    const q = "DELETE FROM comments WHERE `id` = ? AND (`user_id` = ? OR (SELECT `isAdmin` FROM users WHERE `id` = ?) = 1)";
+
+    // Suppression d'un article de blog de la base de données
+    db.query(q, [commentId, userInfo.id, userInfo.id], (err, data) => {
+      if (err) return res.status(403).json("You can delete only your comments!");
+
+      return res.json("Comment has been deleted!");
+    });
+  });
+};
