@@ -1,12 +1,13 @@
 import { db } from "../db.js"; // Importation du module db.js contenant la configuration de la base de données
 import jwt from "jsonwebtoken"; // Importation du module jsonwebtoken pour la gestion des tokens JWT
 
+// Récupération de tous les articles de blog
 export const getPosts = (req, res) => {
   const q = req.query.cat
     ? "SELECT * FROM posts WHERE cat=?"
     : "SELECT * FROM posts";
 
-  // Récupération des articles de blog depuis la base de données
+  // Exécution de la requête SQL pour récupérer les articles de blog depuis la base de données
   db.query(q, [req.query.cat], (err, data) => {
     if (err) return res.status(500).send(err);
 
@@ -14,11 +15,12 @@ export const getPosts = (req, res) => {
   });
 };
 
+// Récupération d'un article de blog spécifique
 export const getPost = (req, res) => {
   const q =
     "SELECT p.id, `username`, `title`, `desc`, p.img, u.img AS userImg, `cat`,`date` FROM users u JOIN posts p ON u.id = p.uid WHERE p.id = ? ";
 
-  // Récupération d'un article de blog spécifique depuis la base de données
+  // Exécution de la requête SQL pour récupérer un article de blog spécifique depuis la base de données
   db.query(q, [req.params.id], (err, data) => {
     if (err) return res.status(500).json(err);
 
@@ -26,6 +28,7 @@ export const getPost = (req, res) => {
   });
 };
 
+// Ajout d'un nouvel article de blog
 export const addPost = (req, res) => {
   const token = req.cookies.access_token;
   if (!token) return res.status(401).json("Not authenticated!");
@@ -46,7 +49,7 @@ export const addPost = (req, res) => {
       userInfo.id,
     ];
 
-    // Ajout d'un nouvel article de blog dans la base de données
+    // Exécution de la requête SQL pour ajouter un nouvel article de blog dans la base de données
     db.query(q, [values], (err, data) => {
       if (err) return res.status(500).json(err);
       return res.json("Post has been created.");
@@ -54,6 +57,7 @@ export const addPost = (req, res) => {
   });
 };
 
+// Suppression d'un article de blog
 export const deletePost = (req, res) => {
   const token = req.cookies.access_token;
   if (!token) return res.status(401).json("Not authenticated!");
@@ -65,7 +69,7 @@ export const deletePost = (req, res) => {
     const postId = req.params.id;
     const q = "DELETE FROM posts WHERE `id` = ? AND (`uid` = ? OR (SELECT `isAdmin` FROM users WHERE `id` = ?) = 1)";
 
-    // Suppression d'un article de blog de la base de données
+    // Exécution de la requête SQL pour supprimer un article de blog de la base de données
     db.query(q, [postId, userInfo.id, userInfo.id], (err, data) => {
       if (err) return res.status(403).json("You can delete only your post!");
 
@@ -74,8 +78,7 @@ export const deletePost = (req, res) => {
   });
 };
 
-
-
+// Mise à jour d'un article de blog
 export const updatePost = (req, res) => {
   const token = req.cookies.access_token;
   if (!token) return res.status(401).json("Not authenticated!");
@@ -90,7 +93,7 @@ export const updatePost = (req, res) => {
 
     const values = [req.body.title, req.body.desc, req.body.img, req.body.cat];
 
-    // Mise à jour d'un article de blog dans la base de données
+    // Exécution de la requête SQL pour mettre à jour un article de blog dans la base de données
     db.query(q, [...values, postId, userInfo.id], (err, data) => {
       if (err) return res.status(500).json(err);
       return res.json("Post has been updated.");

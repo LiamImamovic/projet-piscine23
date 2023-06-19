@@ -5,6 +5,8 @@ module.exports = {
   ],
   theme: {
     extend: {},
+    screens: {
+      'mobile': '325px'},
   },
   plugins: {
   }
